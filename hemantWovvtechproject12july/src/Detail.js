@@ -17,8 +17,8 @@ export class Detail extends Component {
         return (
            <Form style={styles.component}>
                {/* <Form> */}
-               <Text>
-                   {this.state.data1.approvedTime}
+               <Text style={{padding: 10}}>
+                   {JSON.stringify(this.state.data1)}
                </Text>
                {/* </Form> */}
             </Form>
@@ -30,7 +30,7 @@ export class Detail extends Component {
 const styles = StyleSheet.create({
     component: {
         flex: 1,
-        justifyContent: 'center',
+        // justifyContent: 'center',
         alignItems: 'center'
     }
 })

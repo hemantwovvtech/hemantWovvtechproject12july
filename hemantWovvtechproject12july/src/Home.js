@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Input, Text, Form, Content, Item, Label, Button, CardItem, Body, ListItem, Card } from 'native-base'
+import { Container, Input, Text, Form, Content, Item, Label, Button, CardItem, Body, ListItem, Card, Fab, Icon } from 'native-base'
 import { StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native'
 
 
@@ -9,7 +9,9 @@ export class Home extends Component {
     
         this.state = {
              news: [],
-             current_page: 1
+             current_page: 0,
+             newsPage: 0,
+             search: ''
         }
     }
 
@@ -20,6 +22,7 @@ export class Home extends Component {
     }
 
     getNews = async () => {
+       
 
         fetch('https://hn.algolia.com/api/v1/search_by_date?tags=story&page=0',
         {
@@ -28,20 +31,33 @@ export class Home extends Component {
         .then((response)=>response.json())
         .then((resposeJson)=>{
             console.log(resposeJson);
-            this.setState({news: resposeJson.hits})
+            this.setState({news: resposeJson.hits, current_page: resposeJson.page})
         }).catch((error)=>{
             console.log(error)
         })
     }
 
+
+    search = (search) => {
+        var title = search
+
+
+        var temp = this.state.news.filter(item => item.title.includes(title) || item.author.includes(title) || item.created_at.includes(title))
+
+        this.setState({news: temp})
+    }
+
     componentWillUnmount() {
         clearInterval(this.interval);
       }
-    // getNews = async () => {
+
+
+    // getNews1 = async () => {
 
     //     fetch('https://hn.algolia.com/api/v1/search_by_date?tags=story&page=0',
     //     {
-    //         method: 'POST'
+    //         method: 'POST',
+    //         body: this.state.search
     //     })
     //     .then((response)=>response.json())
     //     .then((resposeJson)=>{
@@ -93,11 +109,11 @@ export class Home extends Component {
     )
 
     loadMoreNews = () => {
-        if (this.state.current_page != this.state.news[0].page) {
+        if (this.state.current_page != this.state.newsPage) {
           this.setState(
             {
             //   loadingFooterPod: true,
-              current_page_pod: this.state.current_page + 1,
+              current_page: this.state.current_page + 1,
             },
             () => {
               this.getNews();
@@ -105,6 +121,8 @@ export class Home extends Component {
           );
         }
       };
+
+     
     
     render() {
         return (
@@ -114,7 +132,7 @@ export class Home extends Component {
                 {/* <Item fixedLabel> */}
               <Input placeholder='Search by Title, Url, author name' onChangeText={(text) => this.setState({search: text})} style={{borderWidth: 1, width: "30%", justifyContent: 'center', alignSelf: 'center', paddingLeft: 0, paddingRight: 0}}/>
             {/* </Item> */}
-            <Button success style={{marginLeft: 5}}><Text> Search </Text></Button>
+            <Button success style={{marginLeft: 5}} onPress={()=> this.search(this.state.search)}><Text> Search </Text></Button>
                </Form>
 
             <Button success style={{}} onPress={()=> this.getNews()}><Text> Refresh </Text></Button>
@@ -128,12 +146,28 @@ data={this.state.news}
 renderItem={this.renderItem}
 extraData={this.state}
 // numColumns={2}
-onEndReachedThreshold={0.5}
+onEndReachedThreshold={1}
 onEndReached={() => {
   this.loadMoreNews();
 }}
 // ListFooterComponent={this.renderFooterPod}
 />
+<Fab
+            active={this.state.active}
+            direction="up"
+            containerStyle={{ }}
+            style={{ backgroundColor: '#5067FF' }}
+            position="bottomRight"
+            onPress={() => this.setState({ active: !this.state.active })}>
+            <Icon name="filter" type="FontAwesome" />
+            <Button style={{ backgroundColor: '#34A34F' }} onPress={()=> this.search("A")}>
+              <Icon name="create-outline" type="ionicons"/>
+            </Button>
+            <Button style={{ backgroundColor: '#3B5998' }} onPress={()=> this.search(this.state.news[0].created_at)}>
+            <Icon name="create-outline" type="ionicons"/>
+            </Button>
+           
+          </Fab>
            
           {/* </ScrollView> */}
 
